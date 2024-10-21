@@ -18,10 +18,7 @@ const registerUser = asyncHandler( async ( req, res) => {
     
 
    const { fullName , email,  username, password} = req.body
-   console.log("email: ", email);
-   console.log("fullName: ", fullName);
-   console.log("username", username);
-
+   //console.log("BODY REQUEST: ", req.body)
 
    if (
        [fullName, email, username , password].some((field) => 
@@ -31,7 +28,7 @@ const registerUser = asyncHandler( async ( req, res) => {
       throw new ApiError(400, "All fields are required")
     }
 
-    const existedUser = User.findOne({
+    const existedUser =  await User.findOne({
         $or: [{ username }, { email }]
     })
 
@@ -42,10 +39,14 @@ const registerUser = asyncHandler( async ( req, res) => {
         throw new ApiError(409, "User with email or username already exists")
     }
     const avatarLocalPath = req.files?.avatar[0]?.path;
-    console.log("AvatorLocalPath: " , avatarLocalPath);
     
-    const coverImageLocalPath = req.files?.coverImage[0]?.path;
-    console.log("CoverImageLocalPath: " , coverImageLocalPath);
+    //console.log("The File path for avatar in REQ.FILES: ", req.files);
+    //console.log("AvatorLocalPath: " , avatarLocalPath);
+    
+    const coverImageLocalPath = req.files?.coverImage?.[0]?.path;
+    
+    //console.log("The File path for coverImage in REQ.FILES: ", req.files);
+    //console.log("CoverImageLocalPath: " , coverImageLocalPath);
 
 
     if (!avatarLocalPath) {
@@ -55,8 +56,8 @@ const registerUser = asyncHandler( async ( req, res) => {
     const avatar = await uploadOnCloudinary(avatarLocalPath)
     const coverImage = await uploadOnCloudinary(coverImageLocalPath)
 
-    console.log("Avatar: " , avatar);
-    console.log("CoverImage: " , coverImage);
+    //console.log("Avatar: " , avatar);
+    //console.log("CoverImage: " , coverImage);
 
     if(!avatar){
         throw new ApiError(400, "Avatar is required")
@@ -71,14 +72,14 @@ const registerUser = asyncHandler( async ( req, res) => {
         username: username.toLowerCase()
     })
 
-    console.log("User: " , user);
+    //console.log("User: " , user);
 
     const createdUser = await User.findById(user._id).select(
         "-password -refreshToken"
     )
 
 
-    console.log("CreatedUser: " , createdUser);
+    //console.log("CreatedUser: " , createdUser);
 
 
     if (!createdUser) {
