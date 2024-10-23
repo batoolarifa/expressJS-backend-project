@@ -1,5 +1,6 @@
 import {v2 as cloudinary } from "cloudinary";
 import fs from "fs";
+import { ApiError } from "./ApiError";
 
 cloudinary.config({ 
     cloud_name: process.env.CLOUDINARY_CLOUD_NAME, 
@@ -31,9 +32,18 @@ const uploadOnCloudinary = async (localFilePath) => {
 }
 
 
+const deleteFromCloudinary = async (publicIdOfFile) => {
+    try {
+        await cloudinary.uploader.destroy(publicIdOfFile);
+    } catch (error) {
+        console.error("Error deleting file from Cloudinary:", error);
+        throw new ApiError(500, "Existing file could not be deleted from Cloudinary");
+    }
+}
 
 
-export { uploadOnCloudinary}
+
+export { uploadOnCloudinary , deleteFromCloudinary}
 
 
 
