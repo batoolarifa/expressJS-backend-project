@@ -1,12 +1,14 @@
 import { User } from "../models/user.model.js";
 import { ApiError } from "../utils/ApiError.js";
+import { ApiResponse } from "../utils/ApiResponse.js";
 import { asyncHandler } from "../utils/asyncHandler.js";
 import { uploadOnCloudinary } from "../utils/cloudinary.js";
+import { Video } from "../models/video.model.js";
 
 // verify user is login jwtverify
 
 
-const publishVideo = asyncHandler( async(req, res) => {
+const publishAVideo = asyncHandler( async(req, res) => {
      const{title , description} = req.body
      
      if (
@@ -32,9 +34,10 @@ const publishVideo = asyncHandler( async(req, res) => {
     const uploadedVideo = await uploadOnCloudinary(videoLocalPath)
     const thumbnail = await uploadOnCloudinary(thumbnailLocalPath)
 
-    console.log("Uploaded Video:", uploadedVideo)
+    //console.log("Uploaded Video:", uploadedVideo);
+    //console.log("The duration of videos", uploadedVideo.duration);
 
-    if (!(uploadedVideo && thumbnail)) {
+    if(!(uploadedVideo && thumbnail)) {
         throw new ApiError(400, "Both Video and thumbnail is required for publishing a video...")
 
     }
@@ -43,7 +46,8 @@ const publishVideo = asyncHandler( async(req, res) => {
         title,
         description,
         thumbnail: thumbnail.url,
-        videoFile: videoFile.url,
+        videoFile: uploadedVideo.url,
+        duration: uploadedVideo.duration
         
     })
     return res.status(201).json(
@@ -69,3 +73,7 @@ const publishVideo = asyncHandler( async(req, res) => {
 
 
 // })
+
+export{
+    publishAVideo
+}
