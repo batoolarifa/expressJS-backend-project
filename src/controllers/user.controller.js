@@ -56,12 +56,8 @@ const registerUser = asyncHandler( async ( req, res) => {
 
       throw new ApiError(400, "All fields are required")
     }
-
-
     
-
-    
-    const existedUser =  await User.findOne({
+   const existedUser =  await User.findOne({
         $or: [{ username }, { email }]
     })
 
@@ -327,8 +323,11 @@ const getCurrentUser = asyncHandler( async( req, res) => {
 const updateAccountDetails = asyncHandler( async (req, res) => {
     const {fullName, email } = req.body
 
+    console.log("Full Name:", fullName);
+    console.log("Email:", email);     
+
     if (!fullName || !email) {
-        throw new ApiError("All fields are required")
+        throw new ApiError(400,"All fields are required")
     }
 
     const user = await User.findByIdAndUpdate(
@@ -365,6 +364,7 @@ const updateUserAvatar =  asyncHandler( async (req, res) => {
         const publicId = user.avatar.split('/').slice(-1)[0].split('.')[0]; // Extract publicId from URL
 
         try {
+            
             await deleteFromCloudinary(publicId); // Delete old avatar
         } catch (error) {
             throw new ApiError(500, "Could not delete the existing avatar from Cloudinary");
@@ -450,7 +450,9 @@ const updateUserCoverImage =  asyncHandler( async (req, res) => {
 
 const getUserChannelProfile = asyncHandler(async (req, res) => {
     const { username } = req.params
+    console.log("Username from console:", username);
     if (!username?.trim()) {
+        console.log("Username:", username);
         throw new ApiError(400, "username is missing")
         
     }
@@ -523,7 +525,7 @@ const getUserChannelProfile = asyncHandler(async (req, res) => {
     
     ]) 
 
-    console.log(channel)
+    //console.log(channel)
 
     if (!channel?.length) {
         throw new ApiError(404, "Channel does not exists")
@@ -540,10 +542,13 @@ const getUserChannelProfile = asyncHandler(async (req, res) => {
 })
 
 const getWatchHistory = asyncHandler( async (req, res) => {
+      
       const user = await User.aggregate([
         {
             $match: {
-                _id: new mongoose.Types.createFromHexString(req.user._id)
+                 _id: req.user._id
+
+
             }
         },
         {
@@ -583,7 +588,7 @@ const getWatchHistory = asyncHandler( async (req, res) => {
 
       ])
 
-      console.log("The User is: ", user);
+      //console.log("The User is: ", user);
       return res
       .status(200)
       .json(
