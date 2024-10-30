@@ -18,7 +18,7 @@ const uploadOnCloudinary = async (localFilePath) => {
             resource_type: "auto"
         })
         // file has been uploaded successfully
-        // console.log("file is uploaded on cloudinary ", response.url);
+        console.log("file is uploaded on cloudinary ", response.url);
          //console.log("file is uploaded on cloudinary and response is: ", response);
         fs.unlinkSync(localFilePath)
         return response;
@@ -35,7 +35,7 @@ const uploadOnCloudinary = async (localFilePath) => {
 const deleteFromCloudinary = async (publicIdOfFile,  resourceType = 'image') => {
     try {
         await cloudinary.uploader.destroy(publicIdOfFile, { resource_type: resourceType });
-        console.log(`File with public ID ${publicIdOfFile} has been deleted from Cloudinary`);
+        //console.log(`File with public ID ${publicIdOfFile} has been deleted from Cloudinary`);
     } catch (error) {
         console.error("Error deleting file from Cloudinary:", error);
         throw new ApiError(500, "Existing file could not be deleted from Cloudinary");

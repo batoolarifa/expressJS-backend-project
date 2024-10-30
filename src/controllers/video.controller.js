@@ -118,6 +118,71 @@ const getVideoById = asyncHandler(async (req, res) => {
 })
 
 
+const updateVideo = asyncHandler(async (req, res) => {
+    const { videoId } = req.params
+    console.log("VideoID:", videoId);
+    const {title , description} =  req.body
+    const thumbnailLocalPath = req.file?.path
+    
+    if (!title || !description) {
+        throw new ApiError(400,"Both title and description are required")
+    }
+    
+    if (!thumbnailLocalPath) {
+        throw new ApiError(400, "Thumbnail file is missing")
+    }
+
+    const video = await Video.findById(videoId);
+    console.log("Video", video);
+
+    if (!video) {
+        throw new ApiError(404, "Video not found ");
+    }
+
+    let thumbnail;
+  
+   if (thumbnailLocalPath){   
+        if (video?.thumbnail) {
+             const publicId = video.thumbnail.split('/').slice(-1)[0].split('.')[0]; // Extract publicId from URL
+             try {
+                await deleteFromCloudinary(publicId); 
+            } catch (error) {
+                throw new ApiError(500, "Could not delete the existing thumbnail from Cloudinary");
+        }
+    
+    }
+    thumbnail = await uploadOnCloudinary(thumbnailLocalPath)
+
+
+    if (!thumbnail.url) {
+        throw new ApiError(400, "Error while uploading thumbnail")
+        
+       }
+    }
+
+    console.log("Uploaded thumbnail:", thumbnail);
+    
+    const updatedVideo = await Video.findByIdAndUpdate(
+        videoId,
+        {
+            $set:{
+                title,
+                description,
+                 thumbnail: thumbnail.url
+            }
+                 
+        },
+        { new: true}
+    )
+    
+    return res
+    .status(200)
+    .json( new ApiResponse(200 ,  updatedVideo , "Thumbnail is  updated  successfully"))
+
+})
+
+
+
 
 
 
@@ -129,5 +194,6 @@ const getVideoById = asyncHandler(async (req, res) => {
 export{
     publishAVideo,
     deleteVideo,
-    getVideoById
+    getVideoById,
+    updateVideo
 }
