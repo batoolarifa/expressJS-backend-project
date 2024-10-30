@@ -60,12 +60,6 @@ const publishAVideo = asyncHandler( async(req, res) => {
 })
 
 
-
-// const getAllVideos = asyncHandler( async(req , res) => {
-//     //
-// })
-
-
 const deleteVideo = asyncHandler( async( req, res) => {
     const { videoId } = req.params
 
@@ -109,7 +103,31 @@ const deleteVideo = asyncHandler( async( req, res) => {
 
 })
 
+
+const getVideoById = asyncHandler(async (req, res) => {
+    const { videoId } = req.params
+    const video = await Video.findById(videoId)
+
+    if (!video) {
+        throw new ApiError(400, "Video not found")
+    }
+
+    return res
+           .status(200)
+           .json( new ApiResponse(200 , video, "Video fetched successfully"))
+})
+
+
+
+
+
+
+
+
+
+
 export{
     publishAVideo,
-    deleteVideo
+    deleteVideo,
+    getVideoById
 }
