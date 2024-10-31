@@ -183,6 +183,66 @@ const updateVideo = asyncHandler(async (req, res) => {
 
 
 
+const togglePublishStatus = asyncHandler(async (req, res) => {
+    const { videoId } = req.params
+    
+    if (!videoId) {
+        throw new ApiResponse(400, "VideoId is required")
+        
+    }
+
+    const video = await Video.findById(videoId)
+     
+    if (!video) {
+        throw new ApiError(404, "Video not found for toggling publish status")
+        
+    }
+
+    video.isPublished = !video.isPublished
+    await video.save()
+
+    return res
+           .status(200)
+           .json(new ApiResponse(200, video, "Publish status is toggled successfully"))
+})
+
+
+
+const getAllVideos = asyncHandler(async (req, res) => {
+    const { page = 1, limit = 10, query, sortBy, sortType, userId } = req.query
+    
+    //console.log("Query", query);
+    //console.log("SortBy", sortBy);
+    //console.log("SortType", sortType);
+
+    const filter = {}
+
+    if(query) {
+        filter.title = {
+                     $regex: query, $options: 'i'           
+        }
+    }
+
+    
+
+    if (userId) {
+        
+        filter.videoOwner = userId
+        
+    }
+
+    const video = await Video.find(filter).sort({
+        [sortBy || "createdAt"]: sortType || "desc"})
+        .skip((page - 1)* limit)
+        .limit(parseInt(limit))
+
+    return res
+           .status(200)
+           .json(new ApiResponse(200, video, "The videos are fetched successfully"))
+
+
+    //TODO: get all videos based on query, sort, pagination
+})
 
 
 
@@ -195,5 +255,8 @@ export{
     publishAVideo,
     deleteVideo,
     getVideoById,
-    updateVideo
+    updateVideo,
+    togglePublishStatus,
+    getAllVideos
+    
 }
