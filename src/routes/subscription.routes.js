@@ -14,9 +14,9 @@ const router = Router();
 router.use(verifyJWT); 
 
 router
-    .route("/c/:subscriberId")
+    .route("/channel/:channelId")
     .get(getSubscribedChannels)
     .post(toggleSubscription);
-router.route("/u/:channelId").get(getUserChannelSubscribers);
+router.route("/u/:subscriberId").get(getUserChannelSubscribers);
 
 export default router
